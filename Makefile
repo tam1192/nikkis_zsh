@@ -1,54 +1,92 @@
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # nikkis zsh - Root Makefile
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 MAKEFLAGS += -r
 
-# 出力ディレクトリ
-OUT_DIR := build
+# ------------------------------------------------------------------------------
+# Configuration (変数の設定)
+# ------------------------------------------------------------------------------
+# 子ファイルと共通で使う出力ディレクトリ (変更不可)
+OUT_DIR  := build
 SRC_DIR := src
 
 # 導入するモジュール
-MODULE := core basic vim
-ALIAS_FILE := $(patsubst %, $(OUT_DIR)/%.alias, $(MODULE))
-MAIN_FILE := $(patsubst %, $(OUT_DIR)/%.main, $(MODULE))
-PATH_FILE := $(patsubst %, $(OUT_DIR)/%.path, $(MODULE))
+MODULES := core basic vim
 
-# 動的に環境情報を取得 (動的切り替え用、または静的ビルドの判定用)
+# 各モジュールごとの生成ファイルパス
+ALIAS_FILES := $(patsubst %,$(OUT_DIR)/%.alias,$(MODULES))
+MAIN_FILES  := $(patsubst %,$(OUT_DIR)/%.main,$(MODULES))
+PATH_FILES  := $(patsubst %,$(OUT_DIR)/%.path,$(MODULES))
+
+# 最終成果物
+TARGETS := zshrc
+
+# ------------------------------------------------------------------------------
+# Environment Detection (環境情報の取得)
+# ------------------------------------------------------------------------------
 OS_TYPE := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-DISTRO  := $(shell [ -f /etc/os-release ] && grep -i '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"' || echo "unknown")
+DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /etc/os-release || echo "unknown")
 
-# include
-include $(patsubst %, $(SRC_DIR)/%/main.mk, $(MODULE))
+# ------------------------------------------------------------------------------
+# Phony Targets
+# ------------------------------------------------------------------------------
+.PHONY: all install clean
 
-.PHONY: all install
+all: $(TARGETS)
 
-all: zshrc
 install: all
-	# TODO
+	@echo "Installing..."
+	# TODO: インストール処理をここに記述
 
+clean:
+	@rm -rf $(OUT_DIR) $(TARGETS)
+	@mkdir -p $(OUT_DIR)
+	@touch $(OUT_DIR)/.gitkeep
+	@echo "Cleaned up build artifacts."
 
-$(OUT_DIR)/%: $(SRC_DIR)/%
+# ------------------------------------------------------------------------------
+# Includes
+# ------------------------------------------------------------------------------
+-include $(patsubst %,$(SRC_DIR)/%/main.mk,$(MODULES))
+
+# ------------------------------------------------------------------------------
+# Build Rules
+# ------------------------------------------------------------------------------
+# 最終成果物の生成
+zshrc: $(OUT_DIR)/main.zsh $(OUT_DIR)/alias.zsh $(OUT_DIR)/path.zsh
+	@cat $^ > $@
+	@echo "Successfully generated $@ !"
+
+# 各コンポーネントの結合
+$(OUT_DIR)/alias.zsh: $(ALIAS_FILES)
 	@mkdir -p $(dir $@)
-	@echo "# ------------------------------------------------------------------------------" > $@
-	@echo "# ( $* )" >> $@
-	@echo "# module: $(word 1,$(subst /, ,$*))" >> $@
-	@echo "# file  : $(notdir $*)" >> $@
-	@echo "# ------------------------------------------------------------------------------" >> $@
-	@cat $^ >> $@
-	@echo >> $@
-$(OUT_DIR)/alias.zsh: $(ALIAS_FILE)
 	@cat $^ > $@
 
-$(OUT_DIR)/main.zsh: $(MAIN_FILE)
+$(OUT_DIR)/main.zsh: $(MAIN_FILES)
+	@mkdir -p $(dir $@)
 	@cat $^ > $@
 
-$(OUT_DIR)/path.zsh: $(PATH_FILE)
+$(OUT_DIR)/path.zsh: $(PATH_FILES)
+	@mkdir -p $(dir $@)
 	@echo "# ------------------------------------------------------------------------------" > $@
 	@echo "# PATH" >> $@
 	@echo "# ------------------------------------------------------------------------------" >> $@
+	# 【重要】PATH結合ルール
+	# 入力ファイル (*.path) は「/aaa/bbb」のようなフルパスが改行区切りで記述されている想定。
+	# 1. 最初のみ「PATH=」を出力
+	# 2. スラッシュから始まる行（有効な絶対パス）をコロン「:」区切りで順次結合
+	# 3. 最後に既存の環境変数「$$PATH」を連結して安全性を担保する
 	@cat $^ | awk 'BEGIN{printf "PATH="} $$0 ~ /^\//{printf $$0":"} END{print "$$PATH"}' >> $@
 
-zshrc: $(OUT_DIR)/main.zsh $(OUT_DIR)/alias.zsh $(OUT_DIR)/path.zsh
-	@cat $^ > $@
-
+# 中間ファイルの生成ルール (パターンルール)
+$(OUT_DIR)/%: $(SRC_DIR)/%
+	@mkdir -p $(dir $@)
+	@printf '# %s\n' \
+		"------------------------------------------------------------------------------" \
+		"( $* )" \
+		"module: $(firstword $(subst /, ,$*))" \
+		"file  : $(notdir $*)" \
+		"------------------------------------------------------------------------------" > $@
+	@cat $< >> $@
+	@echo "" >> $@
