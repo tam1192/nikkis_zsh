@@ -1,0 +1,6 @@
+# build dir
+build/*
+!build/.gitkeep
+
+# output
+zshrc
