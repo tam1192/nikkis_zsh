@@ -1,8 +1,11 @@
-$(OUT_DIR)/basic.main: $(OUT_DIR)/basic/main.zsh
+$(BUILD_DIR)/basic.main: $(BUILD_DIR)/basic/main.zsh
 	@cp $^ $@
 
-$(OUT_DIR)/basic.alias: $(OUT_DIR)/basic/alias.zsh
+$(BUILD_DIR)/basic.alias: $(BUILD_DIR)/basic/alias.zsh
 	@cp $^ $@ 
 
-$(OUT_DIR)/basic.path:
+$(BUILD_DIR)/basic.path:
 	@touch $@ 
+
+$(OUT_DIR)/$(CONFIG_DIR)/basic.d:
+	@mkdir -p $@

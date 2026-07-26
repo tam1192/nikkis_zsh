@@ -1,8 +1,11 @@
-$(OUT_DIR)/core.main: $(OUT_DIR)/core/main.zsh
+$(BUILD_DIR)/core.main: $(BUILD_DIR)/core/main.zsh
 	@cp $^ $@
 
-$(OUT_DIR)/core.alias:
+$(BUILD_DIR)/core.alias:
 	@touch $@
 
-$(OUT_DIR)/core.path:
+$(BUILD_DIR)/core.path:
 	@touch $@
+
+$(OUT_DIR)/$(CONFIG_DIR)/core.d:
+	@mkdir -p $@
