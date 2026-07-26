@@ -21,7 +21,7 @@ PATH_FILE  := $(CONFIG_DIR)/path.zsh
 ZSHRC_FILE := .zshrc
 
 # 導入するモジュール
-MODULES := core basic vim
+MODULES := basic vim omz omzt-robbyrussell
 
 # 各モジュールごとの生成ファイルパス
 ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
@@ -40,7 +40,7 @@ DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /
 # ------------------------------------------------------------------------------
 .PHONY: all install clean
 
-all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE) $(OUT_DIR)/$(ALIAS_FILE) $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
 
 install: all
 	@echo "Installing..."
@@ -101,3 +101,7 @@ $(BUILD_DIR)/%: $(SRC_DIR)/%
 		"------------------------------------------------------------------------------" > $@
 	@cat $< >> $@
 	@echo "" >> $@
+
+# zcompileルール
+%.zsh.zwc: %.zsh
+	@zsh -c 'zcompile $<'
