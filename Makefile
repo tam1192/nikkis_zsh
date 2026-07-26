@@ -21,7 +21,7 @@ PATH_FILE  := $(CONFIG_DIR)/path.zsh
 ZSHRC_FILE := .zshrc
 
 # 導入するモジュール
-MODULES := core basic vim
+MODULES := basic vim omz
 
 # 各モジュールごとの生成ファイルパス
 ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
