@@ -62,6 +62,11 @@ clean:
 # ------------------------------------------------------------------------------
 # 最終成果物の生成
 $(OUT_DIR)/$(ZSHRC_FILE): 
+	@touch $@
+	@echo 'export SHELL_CONFIG=$$HOME/$(CONFIG_DIR)' >> $@
+	@echo 'source $$HOME/$(ALIAS_FILE)' >> $@
+	@echo 'source $$HOME/$(MAIN_FILE)' >> $@
+	@echo 'source $$HOME/$(PATH_FILE)' >> $@
 	@echo "Successfully generated $@ !"
 
 # 各コンポーネントの結合
