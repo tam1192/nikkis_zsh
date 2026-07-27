@@ -73,6 +73,7 @@ export ZSH="$SHELL_CONFIG/omz.d"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 # plugins=($plugins git) # ここ課題
+source $SHELL_CONFIG/omz_plugins.zsh
 
 source $ZSH/oh-my-zsh.sh
 
