@@ -21,7 +21,7 @@ PATH_FILE  := $(CONFIG_DIR)/path.zsh
 ZSHRC_FILE := .zshrc
 
 # 導入するモジュール
-MODULES := basic vim omz omzc omzt-robbyrussell
+MODULES := basic vim omz omzc omzc-zsh-autosuggestions omzt-robbyrussell
 
 # 各モジュールごとの生成ファイルパス
 ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
