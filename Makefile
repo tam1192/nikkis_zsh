@@ -35,12 +35,24 @@ EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
 OS_TYPE := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /etc/os-release || echo "unknown")
 
+ALLS := $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+
+
+
 # ------------------------------------------------------------------------------
 # Phony Targets
 # ------------------------------------------------------------------------------
 .PHONY: all install clean
 
-all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+
+all: hall
+
+# ------------------------------------------------------------------------------
+# Includes
+# ------------------------------------------------------------------------------
+-include $(patsubst %,$(SRC_DIR)/%/main.mk,$(MODULES))
+
+hall: $(ALLS)
 
 install: all
 	@echo "Installing..."
@@ -52,10 +64,7 @@ clean:
 	@touch $(BUILD_DIR)/.gitkeep $(OUT_DIR)/.gitkeep
 	@echo "Cleaned up build artifacts."
 
-# ------------------------------------------------------------------------------
-# Includes
-# ------------------------------------------------------------------------------
--include $(patsubst %,$(SRC_DIR)/%/main.mk,$(MODULES))
+
 
 # ------------------------------------------------------------------------------
 # Build Rules

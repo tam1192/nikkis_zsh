@@ -1,1 +1,0 @@
-plugins=($plugins "zsh-autosuggestions")

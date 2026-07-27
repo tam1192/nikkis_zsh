@@ -7,6 +7,9 @@ $(BUILD_DIR)/omzc.alias:
 $(BUILD_DIR)/omzc.path:
 	@touch $@
 
+$(BUILD_DIR)/omzc.omzp:
+	@touch $@
+
 ifeq ($(filter omz,$(MODULES)),)
     $(error [FATAL ERROR] omzモジュールが必要です。 ビルドを強制終了します。)
 endif

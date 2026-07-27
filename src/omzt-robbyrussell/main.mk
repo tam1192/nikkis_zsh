@@ -7,6 +7,9 @@ $(BUILD_DIR)/omzt-robbyrussell.alias:
 $(BUILD_DIR)/omzt-robbyrussell.path:
 	@touch $@
 
+$(BUILD_DIR)/omzt-robbyrussell.omzp:
+	@touch $@
+
 ifneq ($(filter-out omzt-robbyrussell,$(filter omzt-%,$(MODULES))),)
     $(error [FATAL ERROR] 他のomzテーマモジュールを含んでいます。 ビルドを強制終了します。)
 endif
