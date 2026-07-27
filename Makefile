@@ -40,7 +40,7 @@ DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /
 # ------------------------------------------------------------------------------
 .PHONY: all install clean
 
-all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE) $(OUT_DIR)/$(ALIAS_FILE) $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
 
 install: all
 	@echo "Installing..."
@@ -101,3 +101,7 @@ $(BUILD_DIR)/%: $(SRC_DIR)/%
 		"------------------------------------------------------------------------------" > $@
 	@cat $< >> $@
 	@echo "" >> $@
+
+# zcompileルール
+%.zsh.zwc: %.zsh
+	@zsh -c 'zcompile $<'
