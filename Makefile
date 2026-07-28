@@ -29,6 +29,8 @@ MAIN_FILES  := $(patsubst %,$(BUILD_DIR)/%.main,$(MODULES))
 PATH_FILES  := $(patsubst %,$(BUILD_DIR)/%.path,$(MODULES))
 EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
 
+FMT_HEADER_SCRIPT := ./scripts/format_header.sh
+
 # ------------------------------------------------------------------------------
 # Environment Detection (環境情報の取得)
 # ------------------------------------------------------------------------------
@@ -102,14 +104,7 @@ $(OUT_DIR)/$(PATH_FILE): $(PATH_FILES)
 # 中間ファイルの生成ルール (パターンルール)
 $(BUILD_DIR)/%: $(SRC_DIR)/%
 	@mkdir -p $(dir $@)
-	@printf '# %s\n' \
-		"------------------------------------------------------------------------------" \
-		"( $* )" \
-		"module: $(firstword $(subst /, ,$*))" \
-		"file  : $(notdir $*)" \
-		"------------------------------------------------------------------------------" > $@
-	@cat $< >> $@
-	@echo "" >> $@
+	@$(FMT_HEADER_SCRIPT) $^ "module" $(firstword $(subst /, ,$*)) > $@
 
 # zcompileルール
 %.zsh.zwc: %.zsh
