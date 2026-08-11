@@ -29,7 +29,11 @@ MAIN_FILES  := $(patsubst %,$(BUILD_DIR)/%.main,$(MODULES))
 PATH_FILES  := $(patsubst %,$(BUILD_DIR)/%.path,$(MODULES))
 EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
 
-FMT_HEADER_SCRIPT := ./scripts/format_header.sh
+SCRIPTS     := scripts
+OLI         := $(SCRIPTS)/oli.sh
+OLI_ARGS    := "-s PATH :" 
+TAGCAT      := $(SCRIPTS)/tagcat.sh
+TAGCAT_ARGS := "\# filename: $$FILE"
 
 # ------------------------------------------------------------------------------
 # Environment Detection (環境情報の取得)
@@ -90,21 +94,20 @@ $(OUT_DIR)/$(MAIN_FILE): $(MAIN_FILES)
 	@cat $^ > $@
 
 $(OUT_DIR)/$(PATH_FILE): $(PATH_FILES)
-	@mkdir -p $(dir $@)
-	@echo "# ------------------------------------------------------------------------------" > $@
-	@echo "# PATH" >> $@
-	@echo "# ------------------------------------------------------------------------------" >> $@
-# 【重要】PATH結合ルール
-# 入力ファイル (*.path) は「/aaa/bbb」のようなフルパスが改行区切りで記述されている想定。
-# 1. 最初のみ「PATH=」を出力
-# 2. スラッシュから始まる行（有効な絶対パス）をコロン「:」区切りで順次結合
-# 3. 最後に既存の環境変数「$$PATH」を連結して安全性を担保する
-	@cat $^ | awk 'BEGIN{printf "PATH="} $$0 ~ /^\//{printf $$0":"} END{print "$$PATH"}' >> $@
+	
 
 # 中間ファイルの生成ルール (パターンルール)
 $(BUILD_DIR)/%: $(SRC_DIR)/%
 	@mkdir -p $(dir $@)
-	@$(FMT_HEADER_SCRIPT) $^ "module" $(firstword $(subst /, ,$*)) > $@
+	@$(FMT_HEADER_SCRIPT) $^gst "module" $(firstword $(subst /, ,$*)) > $@
+
+# varファイルルール
+%.sh: %.var
+	$(OLI) $(OLI_ARGS)
+
+# envファイルルール
+%.sh: %.env
+	$(OLI) -e $(OLI_ARGS)
 
 # zcompileルール
 %.zsh.zwc: %.zsh
