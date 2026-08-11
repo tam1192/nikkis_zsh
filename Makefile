@@ -4,75 +4,86 @@
 
 MAKEFLAGS += -r
 
-# ------------------------------------------------------------------------------
-# Configuration (変数の設定)
-# ------------------------------------------------------------------------------
-# 子ファイルと共通で使う出力ディレクトリ (変更不可)
-# OUT_DIR: homeディレクトリの想定
-OUT_DIR			:= out
-SHELL_DIR		:= .config/shell
-MODULES_DIR   	:= modules
+# allルール
+all: rc
 
-# ビルドスクリプトなど
+# ------------------------------------------------------------------------------
+# Configuration
+# ------------------------------------------------------------------------------
+# 子ファイルと共通で使う出力ディレクトリ
+OUT_DIR     := out
+SHELL_DIR   := .config/shell
+MODULES_DIR := modules
+
+# ビルドスクリプト・オプション設定
 SCRIPTS     := scripts
 OLI         := $(SCRIPTS)/oli.sh
 OLI_ARGS    := -s PATH :
 TAGCAT      := $(SCRIPTS)/tagcat.sh
 TAGCAT_ARGS := "\# filename: $$FILE"
 
-# 実行例: make SHELL_TYPE=zsh  (指定がない場合はデフォルト zsh)
-SHELL_TYPE ?= zsh
+# ターゲットシェルの指定（デフォルト: zsh）
+SHELL_TYPE  ?= zsh
 
 ifeq ($(SHELL_TYPE), zsh)
-    RC += .zshrc
+    RC := .zshrc
 else ifeq ($(SHELL_TYPE), bash)
-    RC += .bashrc
+    RC := .bashrc
 else
     $(error [ERROR] 非対応シェル '$(SHELL_TYPE)' です。ビルドを強制終了します。)
 endif
 
-# all
-.PHONY: all rc main var env clean
-all: rc
+# モジュール定義
+MODULES := core
 
-# モジュール
-MODULES:= core
+# ------------------------------------------------------------------------------
+# Include Module Rules
+# ------------------------------------------------------------------------------
+include $(patsubst %,$(MODULES_DIR)/%/main.mk,$(MODULES))
 
-include $(patsubst %,$(MODULES_DIR)/%/main.mk, $(MODULES))
+# ------------------------------------------------------------------------------
+# Targets & Phonies
+# ------------------------------------------------------------------------------
+.PHONY: all rc clean
 
 # 基本ルール
-rc: $(OUT_DIR) $(OUT_DIR)/$(RC) 
+rc: $(OUT_DIR)/$(RC)
 
-clean: $(OUT_DIR) $(patsubst %,%-clean, $(MODULES))
+clean:
 	@rm -rf $(OUT_DIR)
+	@$(MAKE) $(patsubst %,%-clean,$(MODULES))
 
-# outディレクトリ
-$(OUT_DIR):
-	@mkdir -p $@
-$(OUT_DIR)/$(SHELL_DIR): $(OUT_DIR)
+# ------------------------------------------------------------------------------
+# Build Rules
+# ------------------------------------------------------------------------------
+# 出力ディレクトリ作成
+$(OUT_DIR) $(OUT_DIR)/$(SHELL_DIR):
 	@mkdir -p $@
 
-$(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh $(OUT_DIR)/$(SHELL_DIR)/vars.sh $(OUT_DIR)/$(SHELL_DIR)/envs.sh
-	@touch $@
-	@echo "shell_dir=$$HOME/$SHELL_DIR" >> $@
-	@echo "source $$shell_dir/main.cat.sh" >> $@
-	@echo "source $$shell_dir/vars.sh" >> $@
-	@echo "source $$shell_dir/envs.sh" >> $@
+# RCファイル生成
+$(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
+                  $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh \
+                  $(OUT_DIR)/$(SHELL_DIR)/vars.sh \
+                  $(OUT_DIR)/$(SHELL_DIR)/envs.sh
+	@{ \
+		echo "shell_dir=\"$$HOME/$(SHELL_DIR)\""; \
+		echo "source \"$$shell_dir/main.cat.sh\""; \
+		echo "source \"$$shell_dir/vars.sh\""; \
+		echo "source \"$$shell_dir/envs.sh\""; \
+	} > $@
 
 # mainの集約
-$(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh, $(MODULES))
+$(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh,$(MODULES))
 	@$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
 
 # varの集約
-$(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var, $(MODULES))
+$(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var,$(MODULES))
 	@cat $^ | $(OLI) $(OLI_ARGS) > $@
 
 # envの集約
-$(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env, $(MODULES))
+$(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env,$(MODULES))
 	@cat $^ | $(OLI) -e $(OLI_ARGS) > $@
 
 # zcompileルール
 %.zsh.zwc: %.zsh
 	@zsh -c 'zcompile $<'
-
-
