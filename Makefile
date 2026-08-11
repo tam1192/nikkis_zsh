@@ -21,7 +21,7 @@ PATH_FILE  := $(CONFIG_DIR)/path.zsh
 ZSHRC_FILE := .zshrc
 
 # 導入するモジュール
-MODULES := basic vim omz omzc omzc-zsh-autosuggestions omzt-robbyrussell
+MODULES := core
 
 # 各モジュールごとの生成ファイルパス
 ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
@@ -29,6 +29,7 @@ MAIN_FILES  := $(patsubst %,$(BUILD_DIR)/%.main,$(MODULES))
 PATH_FILES  := $(patsubst %,$(BUILD_DIR)/%.path,$(MODULES))
 EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
 
+# ビルドスクリプトなど
 SCRIPTS     := scripts
 OLI         := $(SCRIPTS)/oli.sh
 OLI_ARGS    := "-s PATH :" 
@@ -101,13 +102,20 @@ $(BUILD_DIR)/%: $(SRC_DIR)/%
 	@mkdir -p $(dir $@)
 	@$(FMT_HEADER_SCRIPT) $^gst "module" $(firstword $(subst /, ,$*)) > $@
 
+# ファイル集約ルール
+%.cat.sh: %.sh
+	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
+	
+%.cat.zsh: %.zsh
+	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
+
 # varファイルルール
 %.sh: %.var
-	$(OLI) $(OLI_ARGS)
+	cat $^ | $(OLI) $(OLI_ARGS) > $@
 
 # envファイルルール
 %.sh: %.env
-	$(OLI) -e $(OLI_ARGS)
+	cat $^ | $(OLI) -e $(OLI_ARGS) > $@
 
 # zcompileルール
 %.zsh.zwc: %.zsh
