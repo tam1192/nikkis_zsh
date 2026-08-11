@@ -20,7 +20,7 @@ SCRIPTS     := scripts
 OLI         := $(SCRIPTS)/oli.sh
 OLI_ARGS    := -s PATH :
 TAGCAT      := $(SCRIPTS)/tagcat.sh
-TAGCAT_ARGS := "\# filename: $$FILE"
+TAGCAT_ARGS := "\#\#\#\#\#\#\#\#\#\#" -h "\#" -h "\# filename: \$$FILE" -h "\#" -h "\#\#\#\#\#\#\#\#\#\#"
 
 # ターゲットシェルの指定（デフォルト: zsh）
 SHELL_TYPE  ?= zsh
@@ -34,7 +34,7 @@ else
 endif
 
 # モジュール定義
-MODULES := core
+MODULES := core basic
 
 # ------------------------------------------------------------------------------
 # Include Module Rules
@@ -74,7 +74,7 @@ $(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
 
 # mainの集約
 $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh,$(MODULES))
-	@$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
+	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
 
 # varの集約
 $(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var,$(MODULES))
