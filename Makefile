@@ -66,10 +66,10 @@ $(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
                   $(OUT_DIR)/$(SHELL_DIR)/vars.sh \
                   $(OUT_DIR)/$(SHELL_DIR)/envs.sh
 	@{ \
-		echo "shell_dir=\"$$HOME/$(SHELL_DIR)\""; \
-		echo "source \"$$shell_dir/main.cat.sh\""; \
-		echo "source \"$$shell_dir/vars.sh\""; \
-		echo "source \"$$shell_dir/envs.sh\""; \
+		echo "shell_dir=\"\$$HOME/$(SHELL_DIR)\""; \
+		echo "source \"\$$shell_dir/main.cat.sh\""; \
+		echo "source \"\$$shell_dir/vars.sh\""; \
+		echo "source \"\$$shell_dir/envs.sh\""; \
 	} > $@
 
 # mainの集約
