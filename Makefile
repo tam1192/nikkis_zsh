@@ -9,114 +9,70 @@ MAKEFLAGS += -r
 # ------------------------------------------------------------------------------
 # 子ファイルと共通で使う出力ディレクトリ (変更不可)
 # OUT_DIR: homeディレクトリの想定
-OUT_DIR   := out
-BUILD_DIR := build
-SRC_DIR   := src
-
-# 出力後のディレクトリ
-CONFIG_DIR := .config/shell
-ALIAS_FILE := $(CONFIG_DIR)/alias.zsh
-MAIN_FILE  := $(CONFIG_DIR)/main.zsh
-PATH_FILE  := $(CONFIG_DIR)/path.zsh
-ZSHRC_FILE := .zshrc
-
-# 導入するモジュール
-MODULES := core
-
-# 各モジュールごとの生成ファイルパス
-ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
-MAIN_FILES  := $(patsubst %,$(BUILD_DIR)/%.main,$(MODULES))
-PATH_FILES  := $(patsubst %,$(BUILD_DIR)/%.path,$(MODULES))
-EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
+OUT_DIR			:= out
+SHELL_DIR		:= .config/shell
+MODULES_DIR   	:= modules
 
 # ビルドスクリプトなど
 SCRIPTS     := scripts
 OLI         := $(SCRIPTS)/oli.sh
-OLI_ARGS    := "-s PATH :" 
+OLI_ARGS    := -s PATH :
 TAGCAT      := $(SCRIPTS)/tagcat.sh
 TAGCAT_ARGS := "\# filename: $$FILE"
 
-# ------------------------------------------------------------------------------
-# Environment Detection (環境情報の取得)
-# ------------------------------------------------------------------------------
-OS_TYPE := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /etc/os-release || echo "unknown")
+# 実行例: make SHELL_TYPE=zsh  (指定がない場合はデフォルト zsh)
+SHELL_TYPE ?= zsh
 
-ALLS := $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+ifeq ($(SHELL_TYPE), zsh)
+    RC += .zshrc
+else ifeq ($(SHELL_TYPE), bash)
+    RC += .bashrc
+else
+    $(error [ERROR] 非対応シェル '$(SHELL_TYPE)' です。ビルドを強制終了します。)
+endif
 
+# all
+.PHONY: all rc main var env clean
+all: rc
 
+# モジュール
+MODULES:= core
 
-# ------------------------------------------------------------------------------
-# Phony Targets
-# ------------------------------------------------------------------------------
-.PHONY: all install clean
+include $(patsubst %,$(MODULES_DIR)/%/main.mk, $(MODULES))
 
+# 基本ルール
+rc: $(OUT_DIR) $(OUT_DIR)/$(RC) 
 
-all: hall
+clean: $(OUT_DIR) $(patsubst %,%-clean, $(MODULES))
+	@rm -rf $(OUT_DIR)
 
-# ------------------------------------------------------------------------------
-# Includes
-# ------------------------------------------------------------------------------
--include $(patsubst %,$(SRC_DIR)/%/main.mk,$(MODULES))
+# outディレクトリ
+$(OUT_DIR):
+	@mkdir -p $@
+$(OUT_DIR)/$(SHELL_DIR): $(OUT_DIR)
+	@mkdir -p $@
 
-hall: $(ALLS)
-
-install: all
-	@echo "Installing..."
-	# TODO: インストール処理をここに記述
-
-clean:
-	@rm -rf $(BUILD_DIR) $(TARGETS) $(OUT_DIR)
-	@mkdir -p $(BUILD_DIR) $(OUT_DIR)
-	@touch $(BUILD_DIR)/.gitkeep $(OUT_DIR)/.gitkeep
-	@echo "Cleaned up build artifacts."
-
-
-
-# ------------------------------------------------------------------------------
-# Build Rules
-# ------------------------------------------------------------------------------
-# 最終成果物の生成
-$(OUT_DIR)/$(ZSHRC_FILE): 
+$(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh $(OUT_DIR)/$(SHELL_DIR)/vars.sh $(OUT_DIR)/$(SHELL_DIR)/envs.sh
 	@touch $@
-	@echo 'export SHELL_CONFIG=$$HOME/$(CONFIG_DIR)' >> $@
-	@echo 'source $$HOME/$(ALIAS_FILE)' >> $@
-	@echo 'source $$HOME/$(MAIN_FILE)' >> $@
-	@echo 'source $$HOME/$(PATH_FILE)' >> $@
-	@echo "Successfully generated $@ !"
+	@echo "shell_dir=$$HOME/$SHELL_DIR" >> $@
+	@echo "source $$shell_dir/main.cat.sh" >> $@
+	@echo "source $$shell_dir/vars.sh" >> $@
+	@echo "source $$shell_dir/envs.sh" >> $@
 
-# 各コンポーネントの結合
-$(OUT_DIR)/$(ALIAS_FILE): $(ALIAS_FILES)
-	@mkdir -p $(dir $@)
-	@cat $^ > $@
+# mainの集約
+$(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh, $(MODULES))
+	@$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
 
-$(OUT_DIR)/$(MAIN_FILE): $(MAIN_FILES)
-	@mkdir -p $(dir $@)
-	@cat $^ > $@
+# varの集約
+$(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var, $(MODULES))
+	@cat $^ | $(OLI) $(OLI_ARGS) > $@
 
-$(OUT_DIR)/$(PATH_FILE): $(PATH_FILES)
-	
-
-# 中間ファイルの生成ルール (パターンルール)
-$(BUILD_DIR)/%: $(SRC_DIR)/%
-	@mkdir -p $(dir $@)
-	@$(FMT_HEADER_SCRIPT) $^gst "module" $(firstword $(subst /, ,$*)) > $@
-
-# ファイル集約ルール
-%.cat.sh: %.sh
-	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
-	
-%.cat.zsh: %.zsh
-	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
-
-# varファイルルール
-%.sh: %.var
-	cat $^ | $(OLI) $(OLI_ARGS) > $@
-
-# envファイルルール
-%.sh: %.env
-	cat $^ | $(OLI) -e $(OLI_ARGS) > $@
+# envの集約
+$(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env, $(MODULES))
+	@cat $^ | $(OLI) -e $(OLI_ARGS) > $@
 
 # zcompileルール
 %.zsh.zwc: %.zsh
 	@zsh -c 'zcompile $<'
+
+

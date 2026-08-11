@@ -35,15 +35,3 @@ $(BUILD_DIR)/omz.path:
 $(OUT_DIR)/$(CONFIG_DIR)/omz.d:
 	@mkdir -p $@
 	@cp -r $(SRC_DIR)/omz/ohmyzsh/* $@
-
-$(OUT_DIR)/$(OMZ_PLUGINS_FILE): $(OMZ_PLUGINS_FILES)
-	@mkdir -p $(dir $@)
-	@echo "# ------------------------------------------------------------------------------" > $@
-	@echo "# OhMyZsh plugins" >> $@
-	@echo "# ------------------------------------------------------------------------------" >> $@
-	@cat $^ | awk ' \
-		BEGIN { printf "plugins=(" } \
-		!/^#/ { printf " " $$0 } \
-		END   { print " )" } \
-	' >> $@
-	
