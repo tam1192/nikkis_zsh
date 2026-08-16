@@ -4,6 +4,9 @@
 
 MAKEFLAGS += -r
 
+# モジュール
+MODULES := basic vim omz omzt-robbyrussell
+
 # allルール
 all: rc
 
@@ -32,9 +35,6 @@ else ifeq ($(SHELL_TYPE), bash)
 else
     $(error [ERROR] 非対応シェル '$(SHELL_TYPE)' です。ビルドを強制終了します。)
 endif
-
-# モジュール定義
-MODULES := basic vim omz
 
 # ------------------------------------------------------------------------------
 # Include Module Rules
