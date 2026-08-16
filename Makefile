@@ -74,7 +74,7 @@ $(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
 
 # mainの集約
 $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh,$(MODULES))
-	$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
+	@$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
 
 # varの集約
 $(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var,$(MODULES))
