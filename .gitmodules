@@ -1,3 +1,12 @@
-[submodule "src/omz/ohmyzsh"]
-	path = src/omz/ohmyzsh
+[submodule "scripts/oneline_initializer"]
+	path = scripts/oneline_initializer
+	url = https://github.com/tam1192/oneline_initializer.git
+[submodule "scripts/tagcat"]
+	path = scripts/tagcat
+	url = https://github.com/tam1192/tagcat.git
+[submodule "modules/omz/src/ohmyzsh"]
+	path = modules/omz/src/ohmyzsh
 	url = https://github.com/ohmyzsh/ohmyzsh.git
+[submodule "modules/omzc-zsh-autosuggestions/zsh-autosuggestions"]
+	path = modules/omzc-zsh-autosuggestions/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions
