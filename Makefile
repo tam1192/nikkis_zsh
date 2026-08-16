@@ -20,9 +20,9 @@ MODULES_DIR := modules
 
 # ビルドスクリプト・オプション設定
 SCRIPTS     := scripts
-OLI         := $(SCRIPTS)/oli.sh
+OLI         := $(SCRIPTS)/oneline_initializer/oli.sh
 OLI_ARGS    := -s PATH :
-TAGCAT      := $(SCRIPTS)/tagcat.sh
+TAGCAT      := $(SCRIPTS)/tagcat/tagcat.sh
 TAGCAT_ARGS := "\#\#\#\#\#\#\#\#\#\#" -h "\#" -h "\# filename: \$$FILE" -h "\#" -h "\#\#\#\#\#\#\#\#\#\#"
 
 # ターゲットシェルの指定（デフォルト: zsh）
