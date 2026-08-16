@@ -4,16 +4,17 @@
 
 MOD_OMZ        := omz
 MOD_OMZ_DIR    := $(MODULES_DIR)/$(MOD_OMZ)
-MOD_OMZ_MAIN   := $(MOD_OMZ_DIR)/src/main.sh
+MOD_OMZ_MAIN   := $(MOD_OMZ_DIR)/src/main.zsh
 MOD_OMZ_OUTDIR := $(OUT_DIR)/$(SHELL_DIR)/$(MOD_OMZ)
 
-ifeq ($(SHELL_TYPE), zsh)
-    MOD_OMZ_MAIN += $(MOD_OMZ_DIR)/src/main.zsh
+ifneq ($(SHELL_TYPE), zsh)
+	# zsh のみ対応
+	$(error [FATAL ERROR] MODULES 'omz' はSHELL_TYPE 'zsh' 以外対応していません。ビルドを強制終了します。)
 endif
 
-ifneq ($(filter omz,$(MODULES)),)
+ifneq ($(filter core,$(MODULES)),)
     # リストの中に X が【含まれている】場合の処理
-    $(error [FATAL ERROR] MODULESの中に 'omz' が含まれています。ビルドを強制終了します。)
+    $(error [FATAL ERROR] MODULESの中に 'core' が含まれています。ビルドを強制終了します。)
 endif
 
 # ------------------------------------------------------------------------------

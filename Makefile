@@ -34,7 +34,7 @@ else
 endif
 
 # モジュール定義
-MODULES := core basic vim
+MODULES := basic vim omz
 
 # ------------------------------------------------------------------------------
 # Include Module Rules
