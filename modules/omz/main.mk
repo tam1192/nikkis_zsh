@@ -17,17 +17,11 @@ ifneq ($(filter core,$(MODULES)),)
     $(error [FATAL ERROR] MODULESの中に 'core' が含まれています。ビルドを強制終了します。)
 endif
 
+OLI_ARGS += -o ZSH -o ZSH_THEME -o plugins
+
 # ------------------------------------------------------------------------------
 # Build Rules
 # ------------------------------------------------------------------------------
-
-# 必須: main.sh の生成
-$(MOD_OMZ_DIR)/main.sh: $(MOD_OMZ_MAIN) $(MOD_OMZ_OUTDIR)
-	@cat $< > $@
-
-# 必須: 空ファイルの初期化 (touch ではなく > $@ にすることでクリアを保証)
-$(MOD_OMZ_DIR)/main.var:
-	@> $@
 
 $(MOD_OMZ_DIR)/main.env:
 	@> $@
@@ -46,4 +40,4 @@ $(MOD_OMZ_DIR)/src/ohmyzsh:
 
 # 必須: クリーン処理 (存在しないファイルがあってもエラーにならないよう -f を付与)
 omz-clean:
-	@rm -f $(MOD_OMZ_DIR)/main.sh $(MOD_OMZ_DIR)/main.var $(MOD_OMZ_DIR)/main.env
+	@true
