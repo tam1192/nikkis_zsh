@@ -63,7 +63,7 @@ fmt-check:
 	@shfmt -d $$(git ls-files '*.sh')
 
 fmt:
-	@shfmt -w $$(git ls-files '*.zsh')
+	@shfmt -w -ln=auto $$(git ls-files '*.zsh')
 	@shfmt -w $$(git ls-files '*.sh')
 
 # ------------------------------------------------------------------------------
