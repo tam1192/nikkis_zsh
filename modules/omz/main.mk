@@ -45,4 +45,4 @@ $(MOD_OMZ_DIR)/src/ohmyzsh:
 
 # 必須: クリーン処理 (存在しないファイルがあってもエラーにならないよう -f を付与)
 omz-clean:
-	@true
+	rm $(MOD_OMZ_DIR)/main.sh
