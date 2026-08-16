@@ -1,6 +1,3 @@
-[submodule "src/omzc-zsh-autosuggestions/zsh-autosuggestions"]
-	path = src/omzc-zsh-autosuggestions/zsh-autosuggestions
-	url = https://github.com/zsh-users/zsh-autosuggestions
 [submodule "scripts/oneline_initializer"]
 	path = scripts/oneline_initializer
 	url = https://github.com/tam1192/oneline_initializer.git
@@ -10,3 +7,6 @@
 [submodule "modules/omz/src/ohmyzsh"]
 	path = modules/omz/src/ohmyzsh
 	url = https://github.com/ohmyzsh/ohmyzsh.git
+[submodule "modules/omzc-zsh-autosuggestions/zsh-autosuggestions"]
+	path = modules/omzc-zsh-autosuggestions/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions
