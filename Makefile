@@ -5,7 +5,7 @@
 MAKEFLAGS += -r
 
 # モジュール
-MODULES := basic vim omz omzt-robbyrussell
+MODULES := basic vim omz omzt-robbyrussell omzc
 
 # allルール
 all: rc
