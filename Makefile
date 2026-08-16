@@ -61,15 +61,16 @@ $(OUT_DIR) $(OUT_DIR)/$(SHELL_DIR):
 	@mkdir -p $@
 
 # RCファイル生成
+# 環境変数 -> 変数 -> mainの順で読み込み
 $(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
                   $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh \
                   $(OUT_DIR)/$(SHELL_DIR)/vars.sh \
                   $(OUT_DIR)/$(SHELL_DIR)/envs.sh
 	@{ \
 		echo "shell_dir=\"\$$HOME/$(SHELL_DIR)\""; \
-		echo "source \"\$$shell_dir/main.cat.sh\""; \
-		echo "source \"\$$shell_dir/vars.sh\""; \
 		echo "source \"\$$shell_dir/envs.sh\""; \
+		echo "source \"\$$shell_dir/vars.sh\""; \
+		echo "source \"\$$shell_dir/main.cat.sh\""; \
 	} > $@
 
 # mainの集約
