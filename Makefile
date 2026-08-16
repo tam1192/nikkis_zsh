@@ -20,9 +20,9 @@ MODULES_DIR := modules
 
 # ビルドスクリプト・オプション設定
 SCRIPTS     := scripts
-OLI         := $(SCRIPTS)/oli.sh
+OLI         := $(SCRIPTS)/oneline_initializer/oli.sh
 OLI_ARGS    := -s PATH :
-TAGCAT      := $(SCRIPTS)/tagcat.sh
+TAGCAT      := $(SCRIPTS)/tagcat/tagcat.sh
 TAGCAT_ARGS := "\#\#\#\#\#\#\#\#\#\#" -h "\#" -h "\# filename: \$$FILE" -h "\#" -h "\#\#\#\#\#\#\#\#\#\#"
 
 # ターゲットシェルの指定（デフォルト: zsh）
@@ -52,6 +52,21 @@ rc: $(OUT_DIR)/$(RC)
 clean:
 	@rm -rf $(OUT_DIR)
 	@$(MAKE) $(patsubst %,%-clean,$(MODULES))
+
+check:
+# SC2148(shebang)の警告を排除
+	shellcheck --version
+	@shellcheck -e SC2148 $$(git ls-files '*.zsh')
+	@shellcheck -e SC2148 $$(git ls-files '*.sh')
+
+fmt-check:
+	shfmt --version
+	@shfmt -d $$(git ls-files '*.zsh')
+	@shfmt -d $$(git ls-files '*.sh')
+
+fmt:
+	@shfmt -w -ln=auto $$(git ls-files '*.zsh')
+	@shfmt -w $$(git ls-files '*.sh')
 
 # ------------------------------------------------------------------------------
 # Build Rules

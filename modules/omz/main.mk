@@ -28,7 +28,8 @@ OLI_ARGS += -o ZSH -o ZSH_THEME -o plugins
 # ------------------------------------------------------------------------------
 
 # 必須: main.sh の生成
-$(MOD_OMZ_DIR)/main.sh: $(MOD_OMZ_OUTDIR)
+$(MOD_OMZ_DIR)/main.sh: $(MOD_OMZ_MAIN) $(MOD_OMZ_OUTDIR)
+	@cp $< $@
 
 # モジュール用追加ディレクトリ
 $(MOD_OMZ_OUTDIR): $(MOD_OMZ_DIR)/src/ohmyzsh
@@ -44,4 +45,4 @@ $(MOD_OMZ_DIR)/src/ohmyzsh:
 
 # 必須: クリーン処理 (存在しないファイルがあってもエラーにならないよう -f を付与)
 omz-clean:
-	@true
+	rm $(MOD_OMZ_DIR)/main.sh
