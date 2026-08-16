@@ -71,5 +71,5 @@ path/<path_name>.path
 outディレクトリ内部で次のコマンドを実行
 
 ```
-ZDOTDIR=$(PWD) zsh
+ZDOTDIR=$(PWD) HOME=$(PWD) zsh
 ```

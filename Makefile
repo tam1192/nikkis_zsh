@@ -4,103 +4,86 @@
 
 MAKEFLAGS += -r
 
-# ------------------------------------------------------------------------------
-# Configuration (変数の設定)
-# ------------------------------------------------------------------------------
-# 子ファイルと共通で使う出力ディレクトリ (変更不可)
-# OUT_DIR: homeディレクトリの想定
-OUT_DIR   := out
-BUILD_DIR := build
-SRC_DIR   := src
+# モジュール
+MODULES := basic vim omz omzt-robbyrussell omzc omzc-zsh-autosuggestions
 
-# 出力後のディレクトリ
-CONFIG_DIR := .config/shell
-ALIAS_FILE := $(CONFIG_DIR)/alias.zsh
-MAIN_FILE  := $(CONFIG_DIR)/main.zsh
-PATH_FILE  := $(CONFIG_DIR)/path.zsh
-ZSHRC_FILE := .zshrc
-
-# 導入するモジュール
-MODULES := basic vim omz omzt-robbyrussell
-
-# 各モジュールごとの生成ファイルパス
-ALIAS_FILES := $(patsubst %,$(BUILD_DIR)/%.alias,$(MODULES))
-MAIN_FILES  := $(patsubst %,$(BUILD_DIR)/%.main,$(MODULES))
-PATH_FILES  := $(patsubst %,$(BUILD_DIR)/%.path,$(MODULES))
-EXT_DIRS    := $(patsubst %,$(OUT_DIR)/$(CONFIG_DIR)/%.d,$(MODULES))
+# allルール
+all: rc
 
 # ------------------------------------------------------------------------------
-# Environment Detection (環境情報の取得)
+# Configuration
 # ------------------------------------------------------------------------------
-OS_TYPE := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-DISTRO  := $(shell [ -f /etc/os-release ] && sed -n 's/^ID=\(?*[^"]*\)?*/\1/p' /etc/os-release || echo "unknown")
+# 子ファイルと共通で使う出力ディレクトリ
+OUT_DIR     := out
+SHELL_DIR   := .config/shell
+MODULES_DIR := modules
+
+# ビルドスクリプト・オプション設定
+SCRIPTS     := scripts
+OLI         := $(SCRIPTS)/oli.sh
+OLI_ARGS    := -s PATH :
+TAGCAT      := $(SCRIPTS)/tagcat.sh
+TAGCAT_ARGS := "\#\#\#\#\#\#\#\#\#\#" -h "\#" -h "\# filename: \$$FILE" -h "\#" -h "\#\#\#\#\#\#\#\#\#\#"
+
+# ターゲットシェルの指定（デフォルト: zsh）
+SHELL_TYPE  ?= zsh
+
+ifeq ($(SHELL_TYPE), zsh)
+    RC := .zshrc
+else ifeq ($(SHELL_TYPE), bash)
+    RC := .bashrc
+else
+    $(error [ERROR] 非対応シェル '$(SHELL_TYPE)' です。ビルドを強制終了します。)
+endif
 
 # ------------------------------------------------------------------------------
-# Phony Targets
+# Include Module Rules
 # ------------------------------------------------------------------------------
-.PHONY: all install clean
+include $(patsubst %,$(MODULES_DIR)/%/main.mk,$(MODULES))
 
-all: $(OUT_DIR)/$(ZSHRC_FILE) $(OUT_DIR)/$(MAIN_FILE).zwc $(OUT_DIR)/$(ALIAS_FILE).zwc $(OUT_DIR)/$(PATH_FILE) $(EXT_DIRS)
+# ------------------------------------------------------------------------------
+# Targets & Phonies
+# ------------------------------------------------------------------------------
+.PHONY: all rc clean
 
-install: all
-	@echo "Installing..."
-	# TODO: インストール処理をここに記述
+# 基本ルール
+rc: $(OUT_DIR)/$(RC)
 
 clean:
-	@rm -rf $(BUILD_DIR) $(TARGETS) $(OUT_DIR)
-	@mkdir -p $(BUILD_DIR) $(OUT_DIR)
-	@touch $(BUILD_DIR)/.gitkeep $(OUT_DIR)/.gitkeep
-	@echo "Cleaned up build artifacts."
-
-# ------------------------------------------------------------------------------
-# Includes
-# ------------------------------------------------------------------------------
--include $(patsubst %,$(SRC_DIR)/%/main.mk,$(MODULES))
+	@rm -rf $(OUT_DIR)
+	@$(MAKE) $(patsubst %,%-clean,$(MODULES))
 
 # ------------------------------------------------------------------------------
 # Build Rules
 # ------------------------------------------------------------------------------
-# 最終成果物の生成
-$(OUT_DIR)/$(ZSHRC_FILE): 
-	@touch $@
-	@echo 'export SHELL_CONFIG=$$HOME/$(CONFIG_DIR)' >> $@
-	@echo 'source $$HOME/$(ALIAS_FILE)' >> $@
-	@echo 'source $$HOME/$(MAIN_FILE)' >> $@
-	@echo 'source $$HOME/$(PATH_FILE)' >> $@
-	@echo "Successfully generated $@ !"
+# 出力ディレクトリ作成
+$(OUT_DIR) $(OUT_DIR)/$(SHELL_DIR):
+	@mkdir -p $@
 
-# 各コンポーネントの結合
-$(OUT_DIR)/$(ALIAS_FILE): $(ALIAS_FILES)
-	@mkdir -p $(dir $@)
-	@cat $^ > $@
+# RCファイル生成
+# 環境変数 -> 変数 -> mainの順で読み込み
+$(OUT_DIR)/$(RC): $(OUT_DIR)/$(SHELL_DIR) \
+                  $(OUT_DIR)/$(SHELL_DIR)/main.cat.sh \
+                  $(OUT_DIR)/$(SHELL_DIR)/vars.sh \
+                  $(OUT_DIR)/$(SHELL_DIR)/envs.sh
+	@{ \
+		echo "shell_dir=\"\$$HOME/$(SHELL_DIR)\""; \
+		echo "source \"\$$shell_dir/envs.sh\""; \
+		echo "source \"\$$shell_dir/vars.sh\""; \
+		echo "source \"\$$shell_dir/main.cat.sh\""; \
+	} > $@
 
-$(OUT_DIR)/$(MAIN_FILE): $(MAIN_FILES)
-	@mkdir -p $(dir $@)
-	@cat $^ > $@
+# mainの集約
+$(OUT_DIR)/$(SHELL_DIR)/main.cat.sh: $(patsubst %,$(MODULES_DIR)/%/main.sh,$(MODULES))
+	@$(TAGCAT) $(TAGCAT_ARGS) $^ > $@
 
-$(OUT_DIR)/$(PATH_FILE): $(PATH_FILES)
-	@mkdir -p $(dir $@)
-	@echo "# ------------------------------------------------------------------------------" > $@
-	@echo "# PATH" >> $@
-	@echo "# ------------------------------------------------------------------------------" >> $@
-# 【重要】PATH結合ルール
-# 入力ファイル (*.path) は「/aaa/bbb」のようなフルパスが改行区切りで記述されている想定。
-# 1. 最初のみ「PATH=」を出力
-# 2. スラッシュから始まる行（有効な絶対パス）をコロン「:」区切りで順次結合
-# 3. 最後に既存の環境変数「$$PATH」を連結して安全性を担保する
-	@cat $^ | awk 'BEGIN{printf "PATH="} $$0 ~ /^\//{printf $$0":"} END{print "$$PATH"}' >> $@
+# varの集約
+$(OUT_DIR)/$(SHELL_DIR)/vars.sh: $(patsubst %,$(MODULES_DIR)/%/main.var,$(MODULES))
+	@cat $^ | $(OLI) $(OLI_ARGS) > $@
 
-# 中間ファイルの生成ルール (パターンルール)
-$(BUILD_DIR)/%: $(SRC_DIR)/%
-	@mkdir -p $(dir $@)
-	@printf '# %s\n' \
-		"------------------------------------------------------------------------------" \
-		"( $* )" \
-		"module: $(firstword $(subst /, ,$*))" \
-		"file  : $(notdir $*)" \
-		"------------------------------------------------------------------------------" > $@
-	@cat $< >> $@
-	@echo "" >> $@
+# envの集約
+$(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env,$(MODULES))
+	@cat $^ | $(OLI) -e $(OLI_ARGS) > $@
 
 # zcompileルール
 %.zsh.zwc: %.zsh

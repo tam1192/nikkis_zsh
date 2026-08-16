@@ -1,14 +1,21 @@
+# pluginsを配列として再定義する
+# shellcheck disable=2206,2296,2034
+plugins=(${(s: :)plugins})
+typeset -a plugins
+
+# shellcheck disable=1091
+source "$ZSH/oh-my-zsh.sh"
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
 # Path to your Oh My Zsh installation.
-export ZSH="$SHELL_CONFIG/omz.d"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#ZSH_THEME="robbyrussell" 
+#ZSH_THEME="robbyrussell"
 # モジュールで指定する
 
 # Set list of themes to pick from when loading at random
@@ -65,16 +72,16 @@ export ZSH="$SHELL_CONFIG/omz.d"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
-ZSH_CUSTOM="$HOME/.zsh_custom"
+# ZSH_CUSTOM="$HOME/.zsh_custom"
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+# plugins=(git)
 
-source $ZSH/oh-my-zsh.sh
+# source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
