@@ -5,7 +5,7 @@
 MOD_OMZC_ZSH_AUTOSUGGESTIONS        := omzc-zsh-autosuggestions
 MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR    := $(MODULES_DIR)/$(MOD_OMZC_ZSH_AUTOSUGGESTIONS)
 # omzcのディレクトリの下に展開する
-MOD_OMZC_ZSH_AUTOSUGGESTIONS_OUTDIR := $(MOD_OMZC_OUTDIR)/plugins/$(MOD_OMZC_ZSH_AUTOSUGGESTIONS)
+MOD_OMZC_ZSH_AUTOSUGGESTIONS_OUTDIR := $(MOD_OMZC_OUTDIR)/plugins/zsh-autosuggestions
 
 # 依存関係: omz必須
 ifeq ($(filter omzc,$(MODULES)),)
