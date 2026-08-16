@@ -19,7 +19,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            - uses: tecolicom/actions-use-apt-tools@v1
+            - uses: pollenjp/setup-shfmt@v1
               with:
-                  tools: shfmt
+                version: 3.13.1
             - run: make fmt-check
