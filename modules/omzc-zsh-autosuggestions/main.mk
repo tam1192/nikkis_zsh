@@ -1,23 +1,37 @@
-$(BUILD_DIR)/omzc-zsh-autosuggestions.main:
-	@touch $@
+# ==============================================================================
+# Module: Omzc Zsh Autosuggestions
+# ==============================================================================
 
-$(BUILD_DIR)/omzc-zsh-autosuggestions.alias:
-	@touch $@
+MOD_OMZC_ZSH_AUTOSUGGESTIONS        := omzc-zsh-autosuggestions
+MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR    := $(MODULES_DIR)/$(MOD_OMZC_ZSH_AUTOSUGGESTIONS)
+# omzcのディレクトリの下に展開する
+MOD_OMZC_ZSH_AUTOSUGGESTIONS_OUTDIR := $(MOD_OMZC_OUTDIR)/plugins/$(MOD_OMZC_ZSH_AUTOSUGGESTIONS)
 
-$(BUILD_DIR)/omzc-zsh-autosuggestions.path:
-	@touch $@
-
-$(BUILD_DIR)/omzc-zsh-autosuggestions.omzp: $(BUILD_DIR)/omzc-zsh-autosuggestions/omzp.zsh
-	@cp $^ $@
-
+# 依存関係: omz必須
 ifeq ($(filter omzc,$(MODULES)),)
     $(error [FATAL ERROR] omzcモジュールが必要です。 ビルドを強制終了します。)
 endif
 
-$(OUT_DIR)/$(CONFIG_DIR)/omzc.d/plugins/zsh-autosuggestions: $(OUT_DIR)/$(CONFIG_DIR)/omzc.d
-	@mkdir -p $@
-	@cp -r $(SRC_DIR)/omzc-zsh-autosuggestions/zsh-autosuggestions/* $@
+# ------------------------------------------------------------------------------
+# Build Rules
+# ------------------------------------------------------------------------------
 
-$(OUT_DIR)/$(CONFIG_DIR)/omzc-zsh-autosuggestions.d: $(OUT_DIR)/$(CONFIG_DIR)/omzc.d/plugins/zsh-autosuggestions
-# $^を作成するためにダミーで設置
-	@mkdir -p $@
+# 必須: main.sh の生成
+$(MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR)/main.sh: $(MOD_OMZC_ZSH_AUTOSUGGESTIONS_OUTDIR)
+	@> $@
+
+# モジュール用追加ディレクトリ
+$(MOD_OMZC_ZSH_AUTOSUGGESTIONS_OUTDIR): $(MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR)/zsh-autosuggestions
+	@cp -r $< $@
+
+$(MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR)/main.env:
+	@> $@
+
+# ------------------------------------------------------------------------------
+# Phonies & Clean
+# ------------------------------------------------------------------------------
+.PHONY: omzc-zsh-autosuggestions-clean
+
+# 必須: クリーン処理 (存在しないファイルがあってもエラーにならないよう -f を付与)
+omzc-zsh-autosuggestions-clean:
+	@rm -f $(MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR)/main.sh $(MOD_OMZC_ZSH_AUTOSUGGESTIONS_DIR)/main.env
