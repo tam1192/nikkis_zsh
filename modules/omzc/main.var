@@ -1,1 +1,1 @@
-ZSH_CUSTOM=$shell_dir/omzc.d
+ZSH_CUSTOM=$shell_dir/omzc
