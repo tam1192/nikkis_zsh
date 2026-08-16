@@ -1,37 +1,48 @@
-# ------------------------------------------------------------------------------
-# Variables
-# ------------------------------------------------------------------------------
-OMZ_PLUGINS_FILE  := $(CONFIG_DIR)/omz_plugins.zsh
-OMZ_PLUGINS_FILES := $(patsubst %,$(BUILD_DIR)/%.omzp,$(filter omz%,$(MODULES)))
+# ==============================================================================
+# Module: Omz
+# ==============================================================================
 
-ALLS += $(OUT_DIR)/$(OMZ_PLUGINS_FILE)
+MOD_OMZ        := omz
+MOD_OMZ_DIR    := $(MODULES_DIR)/$(MOD_OMZ)
+MOD_OMZ_MAIN   := $(MOD_OMZ_DIR)/src/main.sh
+MOD_OMZ_OUTDIR := $(OUT_DIR)/$(SHELL_DIR)/$(MOD_OMZ)
 
-# ------------------------------------------------------------------------------
-# Validation / Guard Clause
-# ------------------------------------------------------------------------------
-ifneq ($(filter core,$(MODULES)),)
-    $(error [FATAL ERROR] MODULESの中に 'core' が含まれています。ビルドを強制終了します。)
+ifeq ($(SHELL_TYPE), zsh)
+    MOD_OMZ_MAIN += $(MOD_OMZ_DIR)/src/main.zsh
 endif
 
-ifeq ($(filter omzt-%,$(MODULES)),)
-    $(error [FATAL ERROR] omzテーマモジュール(omzt-*)が必要です。ビルドを強制終了します。)
+ifneq ($(filter omz,$(MODULES)),)
+    # リストの中に X が【含まれている】場合の処理
+    $(error [FATAL ERROR] MODULESの中に 'omz' が含まれています。ビルドを強制終了します。)
 endif
 
 # ------------------------------------------------------------------------------
-# Rules
+# Build Rules
 # ------------------------------------------------------------------------------
-$(BUILD_DIR)/omz.main: $(BUILD_DIR)/omz/main.zsh
-	@cp $^ $@
 
-$(BUILD_DIR)/omz.omzp: $(BUILD_DIR)/omz/omzp.zsh
-	@cp $^ $@
+# 必須: main.sh の生成
+$(MOD_OMZ_DIR)/main.sh: $(MOD_OMZ_MAIN) $(MOD_OMZ_OUTDIR)
+	@cat $< > $@
 
-$(BUILD_DIR)/omz.alias:
-	@touch $@
+# 必須: 空ファイルの初期化 (touch ではなく > $@ にすることでクリアを保証)
+$(MOD_OMZ_DIR)/main.var:
+	@> $@
 
-$(BUILD_DIR)/omz.path:
-	@touch $@
+$(MOD_OMZ_DIR)/main.env:
+	@> $@
 
-$(OUT_DIR)/$(CONFIG_DIR)/omz.d:
-	@mkdir -p $@
-	@cp -r $(SRC_DIR)/omz/ohmyzsh/* $@
+# モジュール用追加ディレクトリ
+$(MOD_OMZ_OUTDIR): $(MOD_OMZ_DIR)/src/ohmyzsh
+	@cp -r $< $@
+
+$(MOD_OMZ_DIR)/src/ohmyzsh: 
+	@git submodule update --init --recursive
+
+# ------------------------------------------------------------------------------
+# Phonies & Clean
+# ------------------------------------------------------------------------------
+.PHONY: omz-clean
+
+# 必須: クリーン処理 (存在しないファイルがあってもエラーにならないよう -f を付与)
+omz-clean:
+	@rm -f $(MOD_OMZ_DIR)/main.sh $(MOD_OMZ_DIR)/main.var $(MOD_OMZ_DIR)/main.env
