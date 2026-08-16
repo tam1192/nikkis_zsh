@@ -58,6 +58,14 @@ check:
 	@shellcheck -e SC2148 $$(git ls-files '*.zsh')
 	@shellcheck -e SC2148 $$(git ls-files '*.sh')
 
+fmt-check:
+	@shfmt -d $$(git ls-files '*.zsh')
+	@shfmt -d $$(git ls-files '*.sh')
+
+fmt:
+	@shfmt -w $$(git ls-files '*.zsh')
+	@shfmt -w $$(git ls-files '*.sh')
+
 # ------------------------------------------------------------------------------
 # Build Rules
 # ------------------------------------------------------------------------------
