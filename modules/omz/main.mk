@@ -23,8 +23,8 @@ OLI_ARGS += -o ZSH -o ZSH_THEME -o plugins
 # Build Rules
 # ------------------------------------------------------------------------------
 
-$(MOD_OMZ_DIR)/main.env:
-	@> $@
+# 必須: main.sh の生成
+$(MOD_OMZ_DIR)/main.sh: $(MOD_OMZ_OUTDIR)
 
 # モジュール用追加ディレクトリ
 $(MOD_OMZ_OUTDIR): $(MOD_OMZ_DIR)/src/ohmyzsh
