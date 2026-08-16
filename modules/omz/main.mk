@@ -17,6 +17,10 @@ ifneq ($(filter core,$(MODULES)),)
     $(error [FATAL ERROR] MODULESの中に 'core' が含まれています。ビルドを強制終了します。)
 endif
 
+ifeq ($(filter omzt-%,$(MODULES)),)
+    $(error [FATAL ERROR] omzテーマモジュール(omzt-*)が必要です。 ビルドを強制終了します。)
+endif
+
 OLI_ARGS += -o ZSH -o ZSH_THEME -o plugins
 
 # ------------------------------------------------------------------------------
