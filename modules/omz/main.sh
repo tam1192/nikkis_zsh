@@ -1,3 +1,8 @@
+# pluginsを配列として再定義する
+# shellcheck disable=2206,2296,2034
+plugins=(${(s: :)plugins})
+typeset -a plugins
+
 # shellcheck disable=1091
 source "$ZSH/oh-my-zsh.sh"
 
