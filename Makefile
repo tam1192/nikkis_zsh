@@ -55,10 +55,12 @@ clean:
 
 check:
 # SC2148(shebang)の警告を排除
+	shellcheck --version
 	@shellcheck -e SC2148 $$(git ls-files '*.zsh')
 	@shellcheck -e SC2148 $$(git ls-files '*.sh')
 
 fmt-check:
+	shfmt --version
 	@shfmt -d $$(git ls-files '*.zsh')
 	@shfmt -d $$(git ls-files '*.sh')
 
