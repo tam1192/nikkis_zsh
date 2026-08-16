@@ -1,1 +1,0 @@
-ZSH_CUSTOM="$SHELL_CONFIG/omzc.d"
