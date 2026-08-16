@@ -53,6 +53,11 @@ clean:
 	@rm -rf $(OUT_DIR)
 	@$(MAKE) $(patsubst %,%-clean,$(MODULES))
 
+check:
+# SC2148(shebang)の警告を排除
+	@shellcheck -e SC2148 $$(git ls-files '*.zsh')
+	@shellcheck -e SC2148 $$(git ls-files '*.sh')
+
 # ------------------------------------------------------------------------------
 # Build Rules
 # ------------------------------------------------------------------------------
