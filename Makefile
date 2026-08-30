@@ -5,7 +5,7 @@
 MAKEFLAGS += -r
 
 # モジュール
-MODULES := basic vim omz omzt-robbyrussell omzc omzc-zsh-autosuggestions
+MODULES := basic vim omz omzc omzt-frisk-custom omzc-zsh-autosuggestions omzc-zsh-syntax-highlighting macos mesugaki 
 
 # allルール
 all: rc
@@ -56,7 +56,7 @@ clean:
 check:
 # SC2148(shebang)の警告を排除
 	shellcheck --version
-	@shellcheck -e SC2148 $$(git ls-files '*.zsh')
+	@shellcheck -s bash -e SC2148 $$(git ls-files '*.zsh')
 	@shellcheck -e SC2148 $$(git ls-files '*.sh')
 
 fmt-check:
@@ -103,3 +103,17 @@ $(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env,$(MODULE
 # zcompileルール
 %.zsh.zwc: %.zsh
 	@zsh -c 'zcompile $<'
+
+# ------------------------------------------------------------------------------
+# Install Rules
+# ------------------------------------------------------------------------------
+.PHONY: install
+
+install: $(HOME)/$(RC) $(HOME)/$(SHELL_DIR)
+
+
+$(HOME)/$(RC): $(OUT_DIR)/$(RC)
+	cp $< $@
+
+$(HOME)/$(SHELL_DIR): $(OUT_DIR)/$(SHELL_DIR) 
+	cp -r $< $@

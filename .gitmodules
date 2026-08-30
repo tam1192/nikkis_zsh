@@ -10,3 +10,6 @@
 [submodule "modules/omzc-zsh-autosuggestions/zsh-autosuggestions"]
 	path = modules/omzc-zsh-autosuggestions/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions
+[submodule "modules/omzc-zsh-syntax-highlighting/zsh-syntax-highlighting"]
+	path = modules/omzc-zsh-syntax-highlighting/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git

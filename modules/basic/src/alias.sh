@@ -14,3 +14,7 @@ alias src="source ~/.zshrc" #zshrc 適用
 alias ns='nslookup'
 alias p='ping -c 4'
 alias pp='ping'
+
+# コマンド初期状態
+alias less='less -X'
+alias ls='ls -G'
