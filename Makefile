@@ -5,7 +5,7 @@
 MAKEFLAGS += -r
 
 # モジュール
-MODULES := basic vim omz omzc omzt-frisk-custom omzc-zsh-autosuggestions omzc-zsh-syntax-highlighting macos mesugaki secretive
+MODULES := basic vim omz omzc omzt-frisk-custom omzc-zsh-autosuggestions omzc-zsh-syntax-highlighting macos mesugaki secretive brew
 
 # allルール
 all: rc
@@ -112,8 +112,6 @@ BACKUP_DIR  := backup
 BACKUP_NAME := $(BACKUP_DIR)/$(shell date +%Y%m%d%H%M%S.shbak.d)
 
 .PHONY: all install
-
-all: install
 
 # BACKUP_NAME が空の場合は依存関係が空になり、そのまま通過する
 install: $(HOME)/$(RC) $(HOME)/$(SHELL_DIR)
