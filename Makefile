@@ -24,6 +24,7 @@ OLI         := $(SCRIPTS)/oneline_initializer/oli.sh
 OLI_ARGS    := -s PATH :
 TAGCAT      := $(SCRIPTS)/tagcat/tagcat.sh
 TAGCAT_ARGS := "\#\#\#\#\#\#\#\#\#\#" -h "\#" -h "\# filename: \$$FILE" -h "\#" -h "\#\#\#\#\#\#\#\#\#\#"
+SWAP		:= $(SCRIPTS)/swap.sh
 
 # ターゲットシェルの指定（デフォルト: zsh）
 SHELL_TYPE  ?= zsh
@@ -107,13 +108,27 @@ $(OUT_DIR)/$(SHELL_DIR)/envs.sh: $(patsubst %,$(MODULES_DIR)/%/main.env,$(MODULE
 # ------------------------------------------------------------------------------
 # Install Rules
 # ------------------------------------------------------------------------------
-.PHONY: install
+BACKUP_DIR  := backup
+BACKUP_NAME := $(BACKUP_DIR)/$(shell date +%Y%m%d%H%M%S.shbak.d)
 
+.PHONY: all install
+
+all: install
+
+# BACKUP_NAME が空の場合は依存関係が空になり、そのまま通過する
 install: $(HOME)/$(RC) $(HOME)/$(SHELL_DIR)
 
+# 実際のバックアップファイルを生成するルール
+$(BACKUP_NAME).tar.gz:
+	tar -czvf "$@" 
 
-$(HOME)/$(RC): $(OUT_DIR)/$(RC)
+$(BACKUP_NAME):
+	mkdir -p $@
+
+$(HOME)/$(RC): $(OUT_DIR)/$(RC) $(BACKUP_NAME)
+	-mv $@ $(BACKUP_NAME)
 	cp $< $@
 
-$(HOME)/$(SHELL_DIR): $(OUT_DIR)/$(SHELL_DIR) 
+$(HOME)/$(SHELL_DIR): $(OUT_DIR)/$(SHELL_DIR) $(BACKUP_NAME)
+	-mv $@ $(BACKUP_NAME)
 	cp -r $< $@

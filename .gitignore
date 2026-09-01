@@ -3,6 +3,8 @@ build/*
 !build/.gitkeep
 out/*
 !out/.gitkeep
+backup/*
+!backup/.gitkeep
 
 # output
 zshrc
