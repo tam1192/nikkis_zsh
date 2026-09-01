@@ -5,7 +5,7 @@
 MAKEFLAGS += -r
 
 # モジュール
-MODULES := basic vim omz omzc omzt-frisk-custom omzc-zsh-autosuggestions omzc-zsh-syntax-highlighting macos mesugaki 
+MODULES := basic vim omz omzc omzt-frisk-custom omzc-zsh-autosuggestions omzc-zsh-syntax-highlighting macos mesugaki secretive
 
 # allルール
 all: rc
